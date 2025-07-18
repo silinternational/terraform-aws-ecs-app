@@ -70,6 +70,17 @@ variable "subdomain" {
 
 
 /*
+ * EC2 configuration
+ */
+
+variable "enable_ec2_detailed_monitoring" {
+  description = "Enables/disables detailed monitoring for EC2 instances"
+  type        = bool
+  default     = true
+}
+
+
+/*
  * ECS configuration
  */
 
@@ -167,14 +178,15 @@ variable "health_check" {
   }
 }
 
+
 /*
  * Database configuration
  */
 
-variable "rds_ca_cert_identifier" {
-  description = "The identifier of the CA certificate for the DB instance."
-  default     = null
-  type        = string
+variable "create_adminer" {
+  description = "Set to true to create an Adminer database manager app instance"
+  default     = false
+  type        = bool
 }
 
 variable "database_name" {
@@ -189,20 +201,77 @@ variable "database_user" {
   type        = string
 }
 
-variable "create_adminer" {
-  description = "Set to true to create an Adminer database manager app instance"
+variable "database_allow_major_version_upgrade" {
+  description = <<-EOT
+    Indicates that major version upgrades are allowed. Changing this parameter does not result in an outage and the
+    change is asynchronously applied as soon as possible.
+  EOT
   default     = false
   type        = bool
+}
+
+variable "database_auto_minor_version_upgrade" {
+  description = <<-EOT
+    Indicates that minor engine upgrades will be applied automatically to the DB instance during the maintenance window.
+    Database minor upgrades are changes to the patch version, e.g. 10.1.2 to 10.1.3.
+  EOT
+  default     = false
+  type        = bool
+}
+
+variable "database_deletion_protection" {
+  description = <<-EOT
+    If the DB instance should have deletion protection enabled. The database can't be deleted when this value is
+    set to true.
+  EOT
+  default     = false
+  type        = bool
+}
+
+variable "database_engine_version" {
+  description = <<-EOT
+    The engine version to use. If auto_minor_version_upgrade is enabled, you can provide a prefix of the version such
+    as 8.0 (for 8.0.36).
+  EOT
+  default     = "10.6.20"
+  type        = string
+}
+
+variable "database_instance_class" {
+  description = "The instance type of the RDS instance."
+  default     = "db.t3.micro"
+  type        = string
+}
+
+variable "database_multi_az" {
+  description = "Specifies if the RDS instance is multi-availability-zone"
+  default     = true
+  type        = bool
+}
+
+variable "database_parameter_group_name" {
+  description = "Name of the DB parameter group to associate."
+  default     = null
+  type        = string
+}
+
+variable "database_storage_encrypted" {
+  description = <<-EOT
+    Specifies whether the DB instance is encrypted. Note that if you are creating a cross-region read replica this
+    field is ignored and you should instead declare kms_key_id with a valid ARN.
+  EOT
+  default     = false
+  type        = bool
+}
+
+variable "rds_ca_cert_identifier" {
+  description = "The identifier of the CA certificate for the DB instance."
+  default     = null
+  type        = string
 }
 
 variable "enable_adminer" {
   description = "Set to true to create a DNS record and start the Adminer app. Requires create_adminer = true."
   default     = false
   type        = bool
-}
-
-variable "enable_ec2_detailed_monitoring" {
-  description = "Enables/disables detailed monitoring for EC2 instances"
-  type        = bool
-  default     = true
 }

@@ -175,38 +175,34 @@ resource "random_password" "db_root" {
  */
 resource "aws_db_instance" "this" {
   apply_immediately           = false
-  auto_minor_version_upgrade  = false
-  allow_major_version_upgrade = false
+  auto_minor_version_upgrade  = var.database_auto_minor_version_upgrade
+  allow_major_version_upgrade = var.database_allow_major_version_upgrade
   engine                      = "mariadb"
-  engine_version              = "10.6.20"
+  engine_version              = var.database_engine_version
   allocated_storage           = "20" // 20 gibibyte
   copy_tags_to_snapshot       = true
   ca_cert_identifier          = var.rds_ca_cert_identifier
-  instance_class              = "db.t3.micro"
+  instance_class              = var.database_instance_class
   db_name                     = var.database_name
   identifier                  = "${var.app_name}-${var.app_env}"
   username                    = var.database_user
   password                    = local.db_password
   db_subnet_group_name        = module.vpc.db_subnet_group_name
   storage_type                = "gp2"
-  storage_encrypted           = false
+  storage_encrypted           = var.database_storage_encrypted
   backup_retention_period     = "14"
-  multi_az                    = true
+  multi_az                    = var.database_multi_az
   publicly_accessible         = false
   vpc_security_group_ids      = [module.vpc.vpc_default_sg_id]
   skip_final_snapshot         = true
-  deletion_protection         = false
+  deletion_protection         = var.database_deletion_protection
+  parameter_group_name        = var.database_parameter_group_name
 
   tags = {
     Name     = "${var.app_name}-${var.app_env}"
     app_name = var.app_name
     app_env  = var.app_env
   }
-}
-
-moved {
-  from = module.rds.aws_db_instance.db_instance
-  to   = aws_db_instance.this
 }
 
 /*
